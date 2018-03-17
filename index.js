@@ -222,8 +222,30 @@ Questrade.prototype.getBalances = function (cb) {
   this._accountApi('GET', '/balances', cb);
 };
 
-Questrade.prototype.getExecutions = function (cb) {
-  this._accountApi('GET', '/executions', cb);
+Questrade.prototype.getExecutions = function (opts, cb) {
+  if (typeof opts === 'function') {
+    cb = opts;
+    opts = {};
+  }
+  opts = opts || {};
+  if (opts.startTime && !moment(opts.startTime).isValid()) {
+    return cb({
+      message: 'start_time_invalid',
+      details: opts.startTime
+    });
+  }
+  if (opts.endTime && !moment(opts.endTime).isValid()) {
+    return cb({
+      message: 'end_time_invalid',
+      details: opts.endTime
+    });
+  }
+  var startTime = opts.startTime ? moment(opts.startTime).toISOString() : moment().startOf('day').toISOString();
+  var endTime = opts.endTime ? moment(opts.endTime).toISOString() : moment().toISOString();
+  this._accountApi('GET', '/executions', {
+    startTime: startTime,
+    endTime: endTime
+  }, cb);
 };
 
 Questrade.prototype.getOrder = function (id, cb) {
@@ -249,35 +271,123 @@ Questrade.prototype.getOrders = function (ids, cb) {
   });
 };
 
-Questrade.prototype.getOpenOrders = function (cb) {
+Questrade.prototype.getOpenOrders = function (opts, cb) {
+  if (typeof opts === 'function') {
+    cb = opts;
+    opts = {};
+  }
+  opts = opts || {};
+  if (opts.startTime && !moment(opts.startTime).isValid()) {
+    return cb({
+      message: 'start_time_invalid',
+      details: opts.startTime
+    });
+  }
+  if (opts.endTime && !moment(opts.endTime).isValid()) {
+    return cb({
+      message: 'end_time_invalid',
+      details: opts.endTime
+    });
+  }
+  var startTime = opts.startTime ? moment(opts.startTime).toISOString() : moment().startOf('day').toISOString();
+  var endTime = opts.endTime ? moment(opts.endTime).toISOString() : moment().toISOString();
+  console.log(startTime, endTime);
   this._accountApi('GET', '/orders', {
-    stateFilter: 'Open'
+    stateFilter: 'Open',
+    startTime: startTime,
+    endTime: endTime
   }, function (err, response) {
     if (err) return cb(err);
     cb(null, _.keyBy(response.orders, 'id'));
   });
 };
 
-Questrade.prototype.getAllOrders = function (cb) {
+Questrade.prototype.getAllOrders = function (opts, cb) {
+  if (typeof opts === 'function') {
+    cb = opts;
+    opts = {};
+  }
+  opts = opts || {};
+  if (opts.startTime && !moment(opts.startTime).isValid()) {
+    return cb({
+      message: 'start_time_invalid',
+      details: opts.startTime
+    });
+  }
+  if (opts.endTime && !moment(opts.endTime).isValid()) {
+    return cb({
+      message: 'end_time_invalid',
+      details: opts.endTime
+    });
+  }
+  var startTime = opts.startTime ? moment(opts.startTime).toISOString() : moment().startOf('day').toISOString();
+  var endTime = opts.endTime ? moment(opts.endTime).toISOString() : moment().toISOString();
+  console.log(startTime, endTime);
   this._accountApi('GET', '/orders', {
-    stateFilter: 'All'
+    stateFilter: 'All',
+    startTime: startTime,
+    endTime: endTime
   }, function (err, response) {
     if (err) return cb(err);
     cb(null, _.keyBy(response.orders, 'id'));
   });
 };
 
-Questrade.prototype.getClosedOrders = function (cb) {
+Questrade.prototype.getClosedOrders = function (opts, cb) {
+  if (typeof opts === 'function') {
+    cb = opts;
+    opts = {};
+  }
+  opts = opts || {};
+  if (opts.startTime && !moment(opts.startTime).isValid()) {
+    return cb({
+      message: 'start_time_invalid',
+      details: opts.startTime
+    });
+  }
+  if (opts.endTime && !moment(opts.endTime).isValid()) {
+    return cb({
+      message: 'end_time_invalid',
+      details: opts.endTime
+    });
+  }
+  var startTime = opts.startTime ? moment(opts.startTime).toISOString() : moment().startOf('day').toISOString();
+  var endTime = opts.endTime ? moment(opts.endTime).toISOString() : moment().toISOString();
+  console.log(startTime, endTime);
   this._accountApi('GET', '/orders', {
-    stateFilter: 'Closed'
+    stateFilter: 'Closed',
+    startTime: startTime,
+    endTime: endTime
   }, function (err, response) {
     if (err) return cb(err);
     cb(null, _.keyBy(response.orders, 'id'));
   });
 };
 
-Questrade.prototype.getActivities = function (cb) {
-  this._accountApi('GET', '/activities', cb);
+Questrade.prototype.getActivities = function (opts, cb) {
+  if (typeof opts === 'function') {
+    cb = opts;
+    opts = {};
+  }
+  opts = opts || {};
+  if (opts.startTime && !moment(opts.startTime).isValid()) {
+    return cb({
+      message: 'start_time_invalid',
+      details: opts.startTime
+    });
+  }
+  if (opts.endTime && !moment(opts.endTime).isValid()) {
+    return cb({
+      message: 'end_time_invalid',
+      details: opts.endTime
+    });
+  }
+  var startTime = opts.startTime ? moment(opts.startTime).toISOString() : moment().startOf('day').toISOString();
+  var endTime = opts.endTime ? moment(opts.endTime).toISOString() : moment().toISOString();
+  this._accountApi('GET', '/activities', {
+    startTime: startTime,
+    endTime: endTime
+  }, cb);
 };
 
 Questrade.prototype.getSymbol = function (id, cb) {
