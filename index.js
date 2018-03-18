@@ -382,12 +382,40 @@ Questrade.prototype.getActivities = function (opts, cb) {
       details: opts.endTime
     });
   }
-  var startTime = opts.startTime ? moment(opts.startTime).toISOString() : moment().startOf('day').toISOString();
-  var endTime = opts.endTime ? moment(opts.endTime).toISOString() : moment().toISOString();
-  this._accountApi('GET', '/activities', {
-    startTime: startTime,
-    endTime: endTime
-  }, cb);
+  // Maximum 31 days of data can be requested at a time.
+  var moStartTime = opts.startTime ? moment(opts.startTime) : moment().startOf('day');
+  var moEndTime = opts.endTime ? moment(opts.endTime) : moment();
+  var timeDiff = moEndTime.diff(moStartTime, 'days');
+  var repeat = Math.floor(timeDiff / 30);
+  var activities = [];
+  var that = this;
+  function getActivitiesApi(momentStartTime, momentEndTime) {
+    var thisStartTime = momentStartTime.toISOString();
+    var thisMomentEndTime, thisEndTime;
+    if (repeat > 0) {
+      thisMomentEndTime = momentStartTime.add(30, 'days');
+      thisEndTime = thisMomentEndTime.toISOString();
+    }
+    else {
+      thisMomentEndTime = momentEndTime;
+      thisEndTime = momentEndTime.toISOString();
+    }
+    that._accountApi('GET', '/activities', {
+      startTime: thisStartTime,
+      endTime: thisEndTime
+    }, function(error, response) {
+      activities = activities.concat(response.activities);
+      if (error) return cb(error);
+      if (repeat > 0) {
+        repeat--;
+        getActivitiesApi(thisMomentEndTime, momentEndTime);
+      }
+      else {
+        cb(null, {activities: activities});
+      }
+    });
+  }
+  getActivitiesApi(moStartTime, moEndTime);
 };
 
 Questrade.prototype.getSymbol = function (id, cb) {
